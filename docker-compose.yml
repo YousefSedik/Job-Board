@@ -1,0 +1,73 @@
+# setup services 
+version: '3'
+
+services:
+  django:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./media:/app/media  # Persist media files on the host machine
+    depends_on:
+      - job_board_db
+      - job_board_redis
+
+  job_board_redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+
+  job_board_celery:
+    build: .
+    command: celery -A job_board worker --loglevel=info
+    depends_on:
+      - job_board_redis
+    volumes:
+      - ./media:/app/media  # Shared media storage
+      - .:/app 
+  
+  job_board_celery_beat:
+    build: .
+    command: celery -A job_board beat --loglevel=info
+    depends_on:
+      - job_board_redis
+      - job_board_celery
+    volumes:
+      - ./media:/app/media  # Shared media storage
+      - .:/app 
+
+  job_board_flower:
+    build: .
+    command: celery -A job_board flower --port=5555
+    depends_on:
+      - job_board_redis
+      - job_board_celery
+    ports:
+      - "5555:5555"
+
+  job_board_db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: job_board
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persistent PostgreSQL storage
+
+  job_board_pg_admin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@postgres.com
+      PGADMIN_DEFAULT_PASSWORD: admin    
+    ports:
+      - "5050:80"                              
+    depends_on:
+      - job_board_db
+
+volumes:
+  postgres_data:  # Persistent storage for PostgreSQL
+  media_volume:   # Persistent storage for media files (mapped to host)
