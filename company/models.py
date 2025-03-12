@@ -36,10 +36,9 @@ class Company(models.Model):
         upload_to="company/profile_image/", null=True, blank=True
     )
     number_of_employees = models.PositiveBigIntegerField(
-        choices=NumberOfEmployees.choices,
-        default=NumberOfEmployees._1_10
+        choices=NumberOfEmployees.choices, default=NumberOfEmployees._1_10
     )
-    website = models.URLField()
+    website = models.URLField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
