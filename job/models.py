@@ -52,6 +52,13 @@ class Job(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, force_insert=..., force_update=..., using=..., update_fields=...):
+        self.company = self.company_office.company
+        return super().save(force_insert, force_update, using, update_fields)
+
+    def __str__(self):
+        return f"{self.title} - {self.company}"
+
 
 class Application(models.Model):
 
@@ -83,7 +90,7 @@ class JobBookmark(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.get_full_name() + " - " + self.job.id
+        return self.user.get_full_name() + " - " + str(self.job.id)
 
     class Meta:
         unique_together = ["user", "job"]

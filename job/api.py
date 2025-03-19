@@ -1,2 +1,49 @@
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    DestroyAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+)
+from .serializers import (
+    BookmarkCreateSerializer,
+    BookmarkSerializersList,
+    BookmarkDestroySerializers,
+    JobSerializer,
+    JobCreateSerializer
+)
+from rest_framework import permissions
+from rest_framework import authentication
+from .models import JobBookmark, Job, JobRequirement, JobResponsibility
 
+
+class BookmarkCreateAPIView(CreateAPIView):
+    serializer_class = BookmarkCreateSerializer
+
+
+class BookmarkDestroyAPIView(DestroyAPIView):
+    serializer_class = BookmarkDestroySerializers
+    queryset = JobBookmark.objects.all()
+    lookup_field = "id"
+    lookup_url_kwarg = "id"
+
+class BookmarkListAPIView(ListAPIView):
+    serializer_class = BookmarkSerializersList
+    queryset = JobBookmark.objects.all()
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
+
+
+class JobDetailAPIView(RetrieveAPIView):
+    serializer_class = JobSerializer
+    queryset = Job.objects.all()
+    lookup_field = "id"
+    lookup_url_kwarg = "id"
+
+class JobCreateAPIView(CreateAPIView):
+    serializer_class = JobCreateSerializer
+    queryset = Job.objects.all()
+    def get_queryset(self):
+        qs = super().get_queryset()
+        print(qs)
+        return qs
