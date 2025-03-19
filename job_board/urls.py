@@ -23,6 +23,7 @@ urlpatterns = [
     path("api/", include("users.urls")),
     path("api/", include("job.urls")),
     path("api/", include("company.urls")),
+    
 ]
 if settings.DEBUG:
     urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]  # Silk Profiler
@@ -43,4 +44,7 @@ if settings.DEBUG:
             SpectacularRedocView.as_view(url_name="schema"),
             name="redoc",
         ),
+    ]
+    urlpatterns += [
+        path("api-auth/", include("rest_framework.urls")),
     ]
