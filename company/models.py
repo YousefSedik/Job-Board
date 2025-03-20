@@ -11,7 +11,7 @@ class CompanyOffice(models.Model):
     city = models.ForeignKey(
         "cities_light.City", on_delete=models.SET_NULL, null=True, blank=True
     )
-    company = models.ForeignKey("Company", on_delete=models.CASCADE)
+    company = models.ForeignKey("Company", on_delete=models.CASCADE, related_name="offices")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
