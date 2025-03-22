@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractUser
 from django.utils.translation import gettext_lazy as _
-
+from django.utils import timesince
 
 class CustomUserManager(BaseUserManager):
     """
@@ -57,6 +57,10 @@ class Resume(models.Model):
         verbose_name = "Resume"
         verbose_name_plural = "Resumes"
         ordering = ["-created_at"]
+
+    @property
+    def timesince(self):
+        return timesince.timesince(self.created_at)
 
     def __str__(self):
         return self.user.email + " - " + self.resume.name
