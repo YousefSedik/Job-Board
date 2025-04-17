@@ -48,7 +48,7 @@ class CompanyOfficeViewSet(viewsets.ModelViewSet):
 class CompanyManagerViewSet(viewsets.ModelViewSet):
     queryset = CompanyManager.objects.all()
     serializer_class = CompanyManagerSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         queryset = CompanyManager.objects.all()
@@ -66,7 +66,7 @@ class CompanyManagerViewSet(viewsets.ModelViewSet):
 class CityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = City.objects.all()
     serializer_class = CitySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         queryset = City.objects.all()
@@ -84,7 +84,7 @@ class CityViewSet(viewsets.ReadOnlyModelViewSet):
 class CountryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         queryset = Country.objects.all()

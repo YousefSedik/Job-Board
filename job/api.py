@@ -9,11 +9,13 @@ from .serializers import (
     BookmarkSerializersList,
     BookmarkDestroySerializers,
     JobSerializer,
-    JobCreateSerializer
+    JobCreateSerializer,
+    JobApplicationSerializer,
 )
 from rest_framework import permissions
 from rest_framework import authentication
-from .models import JobBookmark, Job, JobRequirement, JobResponsibility
+from .models import JobBookmark, Job, JobRequirement, JobResponsibility, Application
+from .permissions import IsCompanyManager
 
 
 class BookmarkCreateAPIView(CreateAPIView):
@@ -25,6 +27,7 @@ class BookmarkDestroyAPIView(DestroyAPIView):
     queryset = JobBookmark.objects.all()
     lookup_field = "id"
     lookup_url_kwarg = "id"
+
 
 class BookmarkListAPIView(ListAPIView):
     serializer_class = BookmarkSerializersList
@@ -40,10 +43,13 @@ class JobDetailAPIView(RetrieveAPIView):
     lookup_field = "id"
     lookup_url_kwarg = "id"
 
+
 class JobCreateAPIView(CreateAPIView):
     serializer_class = JobCreateSerializer
     queryset = Job.objects.all()
-    def get_queryset(self):
-        qs = super().get_queryset()
-        print(qs)
-        return qs
+    permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
+
+
+class JobApplicationAPIView(CreateAPIView):
+    serializer_class = JobApplicationSerializer
+    queryset = Application.objects.all()

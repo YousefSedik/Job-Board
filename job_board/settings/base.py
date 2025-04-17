@@ -191,3 +191,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
 ]
+
+AJAX_LOOKUP_CHANNELS = {
+    "cities_light_country": ("cities_light.lookups", "CountryLookup"),
+    "cities_light_city": ("cities_light.lookups", "CityLookup"),
+}

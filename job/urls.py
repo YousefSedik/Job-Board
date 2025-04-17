@@ -5,6 +5,7 @@ from .api import (
     BookmarkListAPIView,
     JobDetailAPIView,
     JobCreateAPIView,
+    JobApplicationAPIView,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path("bookmark", BookmarkCreateAPIView.as_view(), name="create-bookmark"),
     path("job/<int:id>", JobDetailAPIView.as_view(), name="job-detail"),
     path("job", JobCreateAPIView.as_view(), name="job-create"),
+    path("job/<int:id>/apply", JobApplicationAPIView.as_view(), name="application-create")
 ]

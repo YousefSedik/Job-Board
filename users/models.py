@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timesince
+
 
 class CustomUserManager(BaseUserManager):
     """
@@ -52,6 +55,7 @@ class Resume(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     resume = models.FileField(upload_to="resumes/")
     created_at = models.DateTimeField(auto_now_add=True)
+    content = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Resume"
@@ -64,3 +68,16 @@ class Resume(models.Model):
 
     def __str__(self):
         return self.user.email + " - " + self.resume.name
+
+
+# import signals
+from .tasks import analyze_resume_task
+
+
+@receiver(post_save, sender=Resume)
+def fire_resume_analyzer(sender, instance, created, **kwargs):
+    if created:
+        print(f"Resume created for user: {instance.user.email}")
+        # call CV analysis service
+        
+        analyze_resume_task.delay(instance.id)

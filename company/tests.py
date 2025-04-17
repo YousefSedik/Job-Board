@@ -10,8 +10,6 @@ from .factories import (
     CountryFactory,
     CityFactory,
 )
-from cities_light.models import Country, City
-
 
 class CompanyAPITests(APITestCase):
     def setUp(self):
