@@ -32,3 +32,18 @@ class JobFactory(DjangoModelFactory):
         [Job.WorkPlace.REMOTE, Job.WorkPlace.OFFICE, Job.WorkPlace.HYBRID]
     )
     company_office = factory.SubFactory("company.factories.CompanyOfficeFactory")
+
+class JobResponsibilityFactory(DjangoModelFactory):
+    class Meta:
+        model = JobResponsibility
+
+    description = factory.Faker("text")
+    job = factory.SubFactory(JobFactory)
+
+class JobRequirementFactory(DjangoModelFactory):
+    class Meta:
+        model = JobRequirement
+
+    description = factory.Faker("text")
+    job = factory.SubFactory(JobFactory)
+
