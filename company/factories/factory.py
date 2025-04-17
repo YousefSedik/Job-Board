@@ -5,9 +5,8 @@ from company.models import Company, CompanyOffice, CompanyManager
 from cities_light.models import Country, City
 import random
 from users.factories import UserFactory
+
 User = get_user_model()
-
-
 
 
 class CountryFactory(DjangoModelFactory):
