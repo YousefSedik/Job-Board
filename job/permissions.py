@@ -19,3 +19,10 @@ class IsCompanyManager(permissions.BasePermission):
         return CompanyManager.objects.filter(
             manager=request.user, company=obj.company
         ).exists()
+
+
+class IsObjectOwner(permissions.BasePermission):
+    owner_field = "user"
+
+    def has_object_permission(self, request, view, obj):
+        return getattr(obj, self.owner_field) == request.user

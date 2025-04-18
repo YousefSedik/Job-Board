@@ -15,15 +15,17 @@ from .serializers import (
 from rest_framework import permissions
 from rest_framework import authentication
 from .models import JobBookmark, Job, JobRequirement, JobResponsibility, Application
-from .permissions import IsCompanyManager
+from .permissions import IsCompanyManager, IsObjectOwner
 
 
 class BookmarkCreateAPIView(CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = BookmarkCreateSerializer
 
 
 class BookmarkDestroyAPIView(DestroyAPIView):
     serializer_class = BookmarkDestroySerializers
+    permission_classes = [permissions.IsAuthenticated, IsObjectOwner]
     queryset = JobBookmark.objects.all()
     lookup_field = "id"
     lookup_url_kwarg = "id"
