@@ -1,5 +1,5 @@
 from .factories import JobBookmarkFactory, JobFactory
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 from users.factories import UserFactory
 from rest_framework import status
 from django.urls import reverse
@@ -26,7 +26,7 @@ class JobBookmarkTests(APITestCase):
             response.data[0]["job"].endswith(reverse("job-detail", args=[job.id]))
         )
 
-    def delete_authorized_job_bookmark(self):
+    def test_delete_owned_job_bookmark(self):
         user = UserFactory()
         job = JobFactory()
         bookmark = JobBookmarkFactory(user=user, job=job)
@@ -41,17 +41,17 @@ class JobBookmarkTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-    def delete_unauthorized_job_bookmark(self):
+    def test_delete_unowned_job_bookmark(self):
+        self.client = APIClient()
         user = UserFactory()
+        other_user = UserFactory()
         job = JobFactory()
         bookmark = JobBookmarkFactory(user=user, job=job)
         url = reverse("delete-bookmark", args=[bookmark.id])
         self.client.force_authenticate(user=None)
 
         response = self.client.delete(url, format="json")
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-        list_url = reverse("list-bookmarks")
-        response = self.client.get(list_url, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.client.force_authenticate(user=other_user)
+        response = self.client.delete(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
