@@ -13,8 +13,7 @@ from .serializers import (
     JobApplicationSerializer,
 )
 from rest_framework import permissions
-from rest_framework import authentication
-from .models import JobBookmark, Job, JobRequirement, JobResponsibility, Application
+from .models import JobBookmark, Job, JobApplication
 from .permissions import IsCompanyManager, IsObjectOwner
 
 
@@ -54,4 +53,4 @@ class JobCreateAPIView(CreateAPIView):
 
 class JobApplicationAPIView(CreateAPIView):
     serializer_class = JobApplicationSerializer
-    queryset = Application.objects.all()
+    queryset = JobApplication.objects.all()

@@ -77,7 +77,8 @@ from .tasks import analyze_resume_task
 @receiver(post_save, sender=Resume)
 def fire_resume_analyzer(sender, instance, created, **kwargs):
     if created:
-        print(f"Resume created for user: {instance.user.email}")
         # call CV analysis service
-        
-        analyze_resume_task.delay(instance.id)
+        try:
+            analyze_resume_task.delay(instance.id)
+        except:
+            pass

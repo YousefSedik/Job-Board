@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import JobBookmark, Job, JobRequirement, JobResponsibility, Application
+from users.models import Resume
+from .models import JobBookmark, Job, JobRequirement, JobResponsibility, JobApplication
 from company.serializers import CompanySerializer, CompanyOfficeSerializer
-
+from .validators import job_user_unique
 
 class BookmarkSerializersList(serializers.ModelSerializer):
     job = serializers.HyperlinkedRelatedField(
@@ -90,5 +91,23 @@ class JobApplicationSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
-        model = Application
+        model = JobApplication
         fields = ["user", "job", "resume", "cover_letter"]
+        validators = [job_user_unique]
+        extra_kwargs = {
+            "job": {
+                "error_messages": {
+                    "does_not_exist": "Job Doesn't Exists",
+                    "invalid": "Invalid value.",
+                }
+            }
+        }
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+        resume = attrs["resume"]
+        resume = Resume.objects.get(id=resume.id)
+        if resume is None or resume.user != user:
+            raise serializers.ValidationError("Resume does not exist.")
+
+        return super().validate(attrs)
