@@ -185,8 +185,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = "users.CustomUser"
 
 # Google OAuth2 settings
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "YOUR_GOOGLE_CLIENT_ID"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "YOUR_GOOGLE_CLIENT_SECRET"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv("YOUR_GOOGLE_CLIENT_ID")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv("YOUR_GOOGLE_CLIENT_SECRET")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
@@ -195,4 +195,17 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
 AJAX_LOOKUP_CHANNELS = {
     "cities_light_country": ("cities_light.lookups", "CountryLookup"),
     "cities_light_city": ("cities_light.lookups", "CityLookup"),
+}
+
+
+SPECTACULAR_SETTINGS = {
+    "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+}
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Job Board API",
+    "DESCRIPTION": "API for Job Board",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
