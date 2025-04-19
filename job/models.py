@@ -47,13 +47,16 @@ class Job(models.Model):
     job_type = models.CharField(max_length=2, choices=JobType.choices)
     work_place = models.CharField(max_length=6, choices=WorkPlace.choices)
     company_office = models.ForeignKey(
-        "company.CompanyOffice", on_delete=models.CASCADE, null=True, 
+        "company.CompanyOffice",
+        on_delete=models.CASCADE,
+        null=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="created_jobs"
     )
+
     def save(self, *args, **kwargs):
         self.company = self.company_office.company
         return super().save(*args, **kwargs)
@@ -81,6 +84,7 @@ class JobApplication(models.Model):
         choices=JobApplicationStatus.choices,
         default=JobApplicationStatus.APPLIED,
     )
+    is_cover_letter_ai_generated = models.FloatField(null=True, blank=True, default=None)
 
     class Meta:
         unique_together = ["user", "job"]
