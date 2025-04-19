@@ -4,6 +4,7 @@ from .models import JobBookmark, Job, JobRequirement, JobResponsibility, JobAppl
 from company.serializers import CompanySerializer, CompanyOfficeSerializer
 from .validators import job_user_unique
 
+
 class BookmarkSerializersList(serializers.ModelSerializer):
     job = serializers.HyperlinkedRelatedField(
         view_name="job-detail", lookup_field="id", read_only=True
@@ -67,8 +68,8 @@ class JobCreateSerializer(serializers.ModelSerializer):
         if attrs["salary_start_from"] > attrs["salary_end"]:
             raise serializers.ValidationError(
                 {
-                    "non_field_errors": [
-                        "Salary start from must be less than salary end."
+                    "salary_start_from": [
+                        "Salary end should be smaller than salary start from."
                     ]
                 }
             )

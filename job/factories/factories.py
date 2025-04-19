@@ -31,6 +31,7 @@ class JobFactory(DjangoModelFactory):
     work_place = fuzzy.FuzzyChoice(
         [Job.WorkPlace.REMOTE, Job.WorkPlace.OFFICE, Job.WorkPlace.HYBRID]
     )
+    created_by = factory.SubFactory(UserFactory)
     company_office = factory.SubFactory("company.factories.CompanyOfficeFactory")
 
 class JobResponsibilityFactory(DjangoModelFactory):
