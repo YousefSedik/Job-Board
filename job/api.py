@@ -11,6 +11,7 @@ from .serializers import (
     JobSerializer,
     JobCreateSerializer,
     JobApplicationSerializer,
+    JobApplicationListSerializer,
 )
 from rest_framework import permissions
 from .models import JobBookmark, Job, JobApplication
@@ -67,3 +68,12 @@ class JobCreateAPIView(CreateAPIView):
 class JobApplicationAPIView(CreateAPIView):
     serializer_class = JobApplicationSerializer
     queryset = JobApplication.objects.all()
+
+
+class JobApplicationListAPIView(ListAPIView):
+    serializer_class = JobApplicationListSerializer
+    queryset = JobApplication.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)

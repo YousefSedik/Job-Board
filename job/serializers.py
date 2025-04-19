@@ -63,8 +63,9 @@ class JobCreateSerializer(serializers.ModelSerializer):
             "work_place",
             "company_office",
         ]
+
     def validate(self, attrs):
-        
+
         if attrs["salary_start_from"] > attrs["salary_end"]:
             raise serializers.ValidationError(
                 {
@@ -112,3 +113,17 @@ class JobApplicationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Resume does not exist.")
 
         return super().validate(attrs)
+
+
+class JobApplicationListSerializer(serializers.ModelSerializer):
+    job = serializers.HyperlinkedRelatedField(
+        view_name="job-detail", lookup_field="id", read_only=True
+    )
+    resume = serializers.HyperlinkedRelatedField(
+        view_name="users:retrieve-destroy-resume", read_only=True
+    )
+    status = serializers.CharField(source="get_status_display", read_only=True)
+
+    class Meta:
+        model = JobApplication
+        fields = ["job", "resume", "cover_letter", "created_at", "updated_at", "status"]
