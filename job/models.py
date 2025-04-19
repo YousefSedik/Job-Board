@@ -60,9 +60,9 @@ class Job(models.Model):
         return f"{self.title} - {self.company}"
 
 
-class Application(models.Model):
+class JobApplication(models.Model):
 
-    class ApplicationStatus(models.TextChoices):
+    class JobApplicationStatus(models.TextChoices):
         APPLIED = "A", "Applied"
         REJECTED = "R", "Rejected"
         INVITED = "I", "Invited"
@@ -76,8 +76,8 @@ class Application(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
         max_length=8,
-        choices=ApplicationStatus.choices,
-        default=ApplicationStatus.APPLIED,
+        choices=JobApplicationStatus.choices,
+        default=JobApplicationStatus.APPLIED,
     )
 
     class Meta:
