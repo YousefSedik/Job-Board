@@ -14,7 +14,9 @@ from .serializers import (
 )
 from rest_framework import permissions
 from .models import JobBookmark, Job, JobApplication
-from .permissions import IsCompanyManager, IsObjectOwner
+from .permissions import IsObjectOwner
+from rest_framework.exceptions import PermissionDenied
+from company.models import CompanyManager, CompanyOffice
 
 
 class BookmarkCreateAPIView(CreateAPIView):
@@ -49,8 +51,18 @@ class JobCreateAPIView(CreateAPIView):
     serializer_class = JobCreateSerializer
     queryset = Job.objects.all()
     permission_classes = [permissions.IsAuthenticated]
+
     def perform_create(self, serializer):
+        company_office = self.request.data.get("company_office")
+        company_office = CompanyOffice.objects.get(id=company_office)
+        is_manager = CompanyManager.objects.filter(
+            company=company_office.company.id, manager=self.request.user
+        ).exists()
+        if not is_manager:
+            raise PermissionDenied("Only managers of this company can create jobs.")
+
         serializer.save(created_by=self.request.user)
+
 
 class JobApplicationAPIView(CreateAPIView):
     serializer_class = JobApplicationSerializer

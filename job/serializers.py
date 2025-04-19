@@ -63,8 +63,8 @@ class JobCreateSerializer(serializers.ModelSerializer):
             "work_place",
             "company_office",
         ]
-
     def validate(self, attrs):
+        
         if attrs["salary_start_from"] > attrs["salary_end"]:
             raise serializers.ValidationError(
                 {
