@@ -4,6 +4,7 @@ from rest_framework.generics import (
     ListAPIView,
     RetrieveAPIView,
 )
+from rest_framework import generics
 from .serializers import (
     BookmarkCreateSerializer,
     BookmarkSerializersList,
@@ -68,6 +69,12 @@ class JobCreateAPIView(CreateAPIView):
 class JobApplicationAPIView(CreateAPIView):
     serializer_class = JobApplicationSerializer
     queryset = JobApplication.objects.all()
+
+
+class JobApplicationRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = JobApplicationSerializer
+    queryset = JobApplication.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class JobApplicationListAPIView(ListAPIView):
