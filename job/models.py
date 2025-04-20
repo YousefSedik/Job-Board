@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.dispatch import receiver 
 from django.conf import settings
 from django.db import models
 
@@ -120,7 +120,9 @@ def increment_job_applicants(sender, instance, **kwargs):
 
 @receiver(post_save, sender=JobApplication)  # start task
 def start_is_cover_letter_ai_generated(sender, instance, created, **kwargs):
-    if created and not settings.RUN_CELERY_TASKS_DURING_TESTS:
+    if settings.TESTING:
+        return
+    if created:
         from job.tasks import is_cover_letter_ai_generated_task
 
         is_cover_letter_ai_generated_task.delay(instance.id)

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from dotenv import load_dotenv
 from pathlib import Path
+import sys
 import os
 
 # Load environment variables from .env file
@@ -211,3 +212,4 @@ SPECTACULAR_SETTINGS = {
 }
 
 RUN_CELERY_TASKS_DURING_TESTS = False
+TESTING = "test" in sys.argv
