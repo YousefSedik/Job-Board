@@ -1,5 +1,8 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.conf import settings
+from django.db import models
 
 User = get_user_model()
 
@@ -47,22 +50,27 @@ class Job(models.Model):
     job_type = models.CharField(max_length=2, choices=JobType.choices)
     work_place = models.CharField(max_length=6, choices=WorkPlace.choices)
     company_office = models.ForeignKey(
-        "company.CompanyOffice", on_delete=models.CASCADE
+        "company.CompanyOffice",
+        on_delete=models.CASCADE,
+        null=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="created_jobs"
+    )
 
-    def save(self, force_insert=..., force_update=..., using=..., update_fields=...):
+    def save(self, *args, **kwargs):
         self.company = self.company_office.company
-        return super().save(force_insert, force_update, using, update_fields)
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.title} - {self.company}"
 
 
-class Application(models.Model):
+class JobApplication(models.Model):
 
-    class ApplicationStatus(models.TextChoices):
+    class JobApplicationStatus(models.TextChoices):
         APPLIED = "A", "Applied"
         REJECTED = "R", "Rejected"
         INVITED = "I", "Invited"
@@ -76,9 +84,16 @@ class Application(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
         max_length=8,
-        choices=ApplicationStatus.choices,
-        default=ApplicationStatus.APPLIED,
+        choices=JobApplicationStatus.choices,
+        default=JobApplicationStatus.APPLIED,
     )
+    is_cover_letter_ai_generated = models.FloatField(
+        null=True, blank=True, default=None
+    )
+    is_cover_letter_ai_report = models.JSONField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.job.title} - {self.status}"
 
     class Meta:
         unique_together = ["user", "job"]
@@ -94,3 +109,18 @@ class JobBookmark(models.Model):
 
     class Meta:
         unique_together = ["user", "job"]
+
+
+@receiver(post_save, sender=JobApplication)
+def increment_job_applicants(sender, instance, **kwargs):
+    job = instance.job
+    job.number_of_applicants += 1
+    job.save()
+
+
+@receiver(post_save, sender=JobApplication)  # start task
+def start_is_cover_letter_ai_generated(sender, instance, created, **kwargs):
+    if created and not settings.RUN_CELERY_TASKS_DURING_TESTS:
+        from job.tasks import is_cover_letter_ai_generated_task
+
+        is_cover_letter_ai_generated_task.delay(instance.id)

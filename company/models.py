@@ -11,7 +11,7 @@ class CompanyOffice(models.Model):
     city = models.ForeignKey(
         "cities_light.City", on_delete=models.SET_NULL, null=True, blank=True
     )
-    company = models.ForeignKey("Company", on_delete=models.CASCADE)
+    company = models.ForeignKey("Company", on_delete=models.CASCADE, related_name="offices")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -48,7 +48,7 @@ class Company(models.Model):
 
 class CompanyManager(models.Model):
     manager = models.ForeignKey(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="managers")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

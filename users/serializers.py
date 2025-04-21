@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
+from .models import Resume
 
 User = get_user_model()
 
@@ -62,3 +63,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class GoogleSocialAuthSerializer(serializers.Serializer):
     auth_token = serializers.CharField()
+
+
+class ResumeSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    class Meta:
+        model = Resume
+        fields = ["user", "resume", "timesince"]

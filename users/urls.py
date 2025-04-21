@@ -4,7 +4,12 @@ from rest_framework_simplejwt.views import (
     token_refresh,
     token_verify,
 )
-from .api import create_user, get_user_profile
+from .api import (
+    create_user,
+    get_user_profile,
+    resume_create_list_api_view,
+    resume_retrieve_destroy_api_view,
+)
 from django_rest_passwordreset.views import (
     reset_password_request_token,
     reset_password_confirm,
@@ -20,6 +25,12 @@ urlpatterns = [
     path("reset-password", reset_password_request_token, name="reset_password"),
     path(
         "reset-password/confirm", reset_password_confirm, name="reset_password_confirm"
+    ),
+    path("resume", resume_create_list_api_view, name="create-list-resume"),
+    path(
+        "resume/<int:pk>",
+        resume_retrieve_destroy_api_view,
+        name="retrieve-destroy-resume",
     ),
 ]
 from .views import GoogleSocialAuthView
