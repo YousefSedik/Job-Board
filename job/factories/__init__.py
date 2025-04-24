@@ -1,3 +1,9 @@
-from .factories import JobBookmarkFactory, JobFactory
+from .factories import JobBookmarkFactory, JobFactory, JobApplicationFactory, JobRequirementFactory, JobResponsibilityFactory
 
-__all__ = ['JobBookmarkFactory', "JobFactory"]
+__all__ = [
+    "JobBookmarkFactory",
+    "JobFactory",
+    "JobApplicationFactory",
+    "JobRequirementFactory",
+    "JobResponsibilityFactory",
+]
