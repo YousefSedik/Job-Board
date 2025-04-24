@@ -63,5 +63,5 @@ class JobApplicationFactory(DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory)
     job = factory.SubFactory(JobFactory)
-    resume = factory.SubFactory(ResumeFactory)
+    resume = factory.SubFactory(ResumeFactory, user=factory.SelfAttribute("..user"))
     cover_letter = factory.Faker("text")
