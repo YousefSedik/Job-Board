@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -13,10 +15,11 @@ from .serializers import (
     JobCreateSerializer,
     JobApplicationSerializer,
     JobApplicationListSerializer,
+    JobApplicationUpdateSerializer,
 )
-from rest_framework import permissions
+from rest_framework import permissions, response, status
 from .models import JobBookmark, Job, JobApplication
-from .permissions import IsObjectOwner
+from .permissions import IsObjectOwner, IsCompanyManager
 from rest_framework.exceptions import PermissionDenied
 from company.models import CompanyManager, CompanyOffice
 
@@ -71,10 +74,27 @@ class JobApplicationAPIView(CreateAPIView):
     queryset = JobApplication.objects.all()
 
 
-class JobApplicationRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = JobApplicationSerializer
+class JobApplicationUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = JobApplicationUpdateSerializer
     queryset = JobApplication.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except DjangoValidationError as e:
+            # Format the validation error properly
+            if hasattr(e, "message_dict"):
+                error_detail = e.message_dict
+            else:
+                error_detail = {
+                    "error": (
+                        [str(m) for m in e.messages]
+                        if hasattr(e, "messages")
+                        else [str(e)]
+                    )
+                }
+
+            return response.Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
 
 
 class JobApplicationListAPIView(ListAPIView):

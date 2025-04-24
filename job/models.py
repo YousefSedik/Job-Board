@@ -1,6 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
-from django.dispatch import receiver 
+from django.dispatch import receiver
 from django.conf import settings
 from django.db import models
 
@@ -79,7 +80,7 @@ class JobApplication(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    resume = models.ForeignKey("users.Resume", on_delete=models.CASCADE)
+    resume = models.ForeignKey("users.Resume", on_delete=models.DO_NOTHING)
     cover_letter = models.TextField()
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
@@ -94,6 +95,28 @@ class JobApplication(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.job.title} - {self.status}"
+
+    def clean(self):
+        if self.pk:
+            try:
+                old = self.__class__.objects.get(pk=self.pk)
+                options = {
+                    "Applied": ["Rejected", "Invited", "Hired"],
+                    "Invited": ["Rejected", "Hired"],
+                    "Rejected": [],
+                    "Hired": [],
+                }
+                if self.get_status_display() not in options[old.get_status_display()]:
+                    raise ValidationError(
+                        f"Cannot change status from {old.get_status_display()} to {self.get_status_display()}"
+                    )
+
+            except self.__class__.DoesNotExist:
+                pass
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     class Meta:
         unique_together = ["user", "job"]

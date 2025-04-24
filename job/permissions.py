@@ -7,6 +7,7 @@ from rest_framework.exceptions import PermissionDenied
 
 
 class IsCompanyManager(permissions.BasePermission):
+    company_object = 'job.company'
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -17,7 +18,7 @@ class IsCompanyManager(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return CompanyManager.objects.filter(
-            manager=request.user, company=obj.company
+            manager=request.user, company=obj.job.company
         ).exists()
 
 
