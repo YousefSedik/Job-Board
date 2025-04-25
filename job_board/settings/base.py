@@ -181,6 +181,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
 }
 
 AUTH_USER_MODEL = "users.CustomUser"
@@ -211,5 +212,4 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
-RUN_CELERY_TASKS_DURING_TESTS = False
 TESTING = "test" in sys.argv
