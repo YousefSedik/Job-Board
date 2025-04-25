@@ -62,6 +62,12 @@ class Job(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        if self.salary_start_from > self.salary_end:
+            raise ValidationError("Salary start from must be less than salary end.")
+        if self.salary_start_from < 0 or self.salary_end < 0:
+            raise ValidationError("Salary must be positive.")
+        if self.salary_start_from == self.salary_end:
+            raise ValidationError("Salary start from must be less than salary end.")
         self.company = self.company_office.company
         return super().save(*args, **kwargs)
 

@@ -7,7 +7,7 @@ from .validators import job_user_unique
 
 class BookmarkSerializersList(serializers.ModelSerializer):
     job = serializers.HyperlinkedRelatedField(
-        view_name="job-detail", lookup_field="id", read_only=True
+        view_name="job-detail",  read_only=True
     )
 
     class Meta:
@@ -63,18 +63,6 @@ class JobCreateSerializer(serializers.ModelSerializer):
             "company_office",
         ]
 
-    def validate(self, attrs):
-
-        if attrs["salary_start_from"] > attrs["salary_end"]:
-            raise serializers.ValidationError(
-                {
-                    "salary_start_from": [
-                        "Salary end should be smaller than salary start from."
-                    ]
-                }
-            )
-        return attrs
-
 
 class JobRequirementSerializer(serializers.ModelSerializer):
     class Meta:
@@ -115,9 +103,7 @@ class JobApplicationSerializer(serializers.ModelSerializer):
 
 
 class JobApplicationListSerializer(serializers.ModelSerializer):
-    job = serializers.HyperlinkedRelatedField(
-        view_name="job-detail", read_only=True
-    )
+    job = serializers.HyperlinkedRelatedField(view_name="job-detail", read_only=True)
     resume = serializers.HyperlinkedRelatedField(
         view_name="users:retrieve-destroy-resume", read_only=True
     )
@@ -132,3 +118,21 @@ class JobApplicationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobApplication
         fields = ["status"]
+
+
+class JobUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = [
+            "title",
+            "overview",
+            "salary_start_from",
+            "salary_end",
+            "job_type",
+            "work_place",
+            "company_office",
+        ]
+
+    def validate(self, attrs):
+
+        return attrs

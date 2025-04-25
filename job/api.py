@@ -53,6 +53,23 @@ class JobCreateAPIView(CreateAPIView):
     queryset = Job.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except DjangoValidationError as e:
+            if hasattr(e, "message_dict"):
+                error_detail = e.message_dict
+            else:
+                error_detail = {
+                    "error": (
+                        [str(m) for m in e.messages]
+                        if hasattr(e, "messages")
+                        else [str(e)]
+                    )
+                }
+
+            return response.Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
+
     def perform_create(self, serializer):
         company_office = self.request.data.get("company_office")
         company_office = CompanyOffice.objects.get(id=company_office)
@@ -101,9 +118,11 @@ class JobApplicationListAPIView(ListAPIView):
     def get_queryset(self):
         return JobApplication.objects.filter(user=self.request.user)
 
+
 class JobUpdateAPIView(generics.UpdateAPIView):
     serializer_class = JobCreateSerializer
     queryset = Job.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
+
 
 job_update_api_view = JobUpdateAPIView.as_view()
