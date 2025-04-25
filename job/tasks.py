@@ -9,7 +9,7 @@ def is_cover_letter_ai_generated_task(job_application_id):
     if len(job_application.cover_letter.split()) > 30:
         is_ai = is_ai_generated_report(job_application.cover_letter)
         job_application.is_cover_letter_ai_report = is_ai
-        if is_ai['success']:
+        if is_ai["success"]:
             job_application.is_cover_letter_ai_generated = is_ai["data"][
                 "fakePercentage"
             ]

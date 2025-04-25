@@ -8,8 +8,3 @@ job_user_unique = serializers.UniqueTogetherValidator(
     message="You've already applied to this job.",
 )
 
-
-def validate_(resume, user):
-    if resume.user != user:
-        raise serializers.ValidationError("You are not the owner of this resume.")
-    return resume

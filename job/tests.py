@@ -1,4 +1,4 @@
-from .factories import JobBookmarkFactory, JobFactory
+from .factories import JobBookmarkFactory, JobFactory, JobApplicationFactory
 from users.factories import ResumeFactory, UserFactory
 from rest_framework.test import APITestCase, APIClient
 from users.factories import UserFactory
@@ -183,3 +183,103 @@ class JobCreationTests(APITestCase):
         self.client.force_authenticate(user=None)
         response = self.client.post(self.create_job_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class UpdateJobApplicationStatusTests(APITestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.other_user = UserFactory()
+        self.manager = UserFactory()
+        self.company = CompanyFactory()
+        self.company_office = CompanyOfficeFactory(company=self.company)
+        self.company_manger = CompanyManagerFactory(
+            company=self.company, manager=self.manager
+        )
+        self.job = JobFactory(
+            company=self.company,
+            company_office=self.company_office,
+            created_by=self.manager,
+        )
+        self.resume = ResumeFactory(user=self.user)
+        self.job_application = JobApplicationFactory(
+            resume=self.resume,
+            job=self.job,
+        )
+        self.update_url = reverse(
+            "job-application-update", args=[self.job_application.id]
+        )
+        self.client.force_authenticate(user=self.manager)
+
+    def test_manager_updating_job_application_with_valid_status(self):
+        """
+        Valid status transitions:
+        APPLIED -> REJECTED
+        APPLIED -> INVITED
+        APPLIED -> HIRED
+        INVITED -> REJECTED
+        INVITED -> HIRED
+        """
+        combinations = [
+            [
+                {"status": "R", "status_code": 200},
+                {"status": "I", "status_code": 400},
+                {"status": "H", "status_code": 400},
+            ],
+            [
+                {"status": "I", "status_code": 200},
+                {"status": "R", "status_code": 200},
+                {"status": "H", "status_code": 400},
+            ],
+            [
+                {"status": "I", "status_code": 200},
+                {"status": "H", "status_code": 200},
+                {"status": "R", "status_code": 400},
+            ],
+            [
+                {"status": "H", "status_code": 200},
+                {"status": "I", "status_code": 400},
+                {"status": "R", "status_code": 400},
+            ],
+        ]
+        for combo in combinations:
+            with self.subTest(combo=combo):
+                # new job application object
+                self.job = JobFactory(
+                    company=self.company,
+                    company_office=self.company_office,
+                    created_by=self.manager,
+                )
+                self.job_application = JobApplicationFactory(job=self.job)
+                self.update_url = reverse(
+                    "job-application-update", args=[self.job_application.id]
+                )
+                for status in combo:
+                    data = {"status": status["status"]}
+                    response = self.client.patch(
+                        self.update_url, data=data, format="json"
+                    )
+                    self.assertEqual(response.status_code, status["status_code"])
+                    if status["status_code"] == 200:
+                        self.job_application.refresh_from_db()
+                        self.assertEqual(self.job_application.status, status["status"])
+
+    def test_not_manager_updating_job_application_status(self):
+        self.client.force_authenticate(user=self.other_user)
+        combinations = [
+            {"status": "R", "status_code": 403},
+            {"status": "I", "status_code": 403},
+            {"status": "H", "status_code": 403},
+        ]
+        self.job = JobFactory(
+            company=self.company,
+            company_office=self.company_office,
+            created_by=self.manager,
+        )
+        self.job_application = JobApplicationFactory(job=self.job)
+        self.update_url = reverse(
+            "job-application-update", args=[self.job_application.id]
+        )
+        for status in combinations:
+            data = {"status": status["status"]}
+            response = self.client.patch(self.update_url, data=data, format="json")
+            self.assertEqual(response.status_code, status["status_code"])

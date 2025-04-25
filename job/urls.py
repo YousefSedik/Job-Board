@@ -6,7 +6,8 @@ from .api import (
     JobDetailAPIView,
     JobCreateAPIView,
     JobApplicationAPIView,
-    JobApplicationListAPIView
+    JobApplicationListAPIView,
+    JobApplicationUpdateAPIView,
 )
 
 urlpatterns = [
@@ -16,5 +17,14 @@ urlpatterns = [
     path("job/<int:id>", JobDetailAPIView.as_view(), name="job-detail"),
     path("job", JobCreateAPIView.as_view(), name="job-create"),
     path("job/apply", JobApplicationAPIView.as_view(), name="apply-job"),
-    path("job-applications", JobApplicationListAPIView.as_view(), name="list-applications"),
+    path(
+        "job-applications",
+        JobApplicationListAPIView.as_view(),
+        name="list-applications",
+    ),
+    path(
+        "job-application/<int:pk>",
+        JobApplicationUpdateAPIView.as_view(),
+        name="job-application-update",
+    ),
 ]

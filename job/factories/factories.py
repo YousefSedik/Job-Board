@@ -1,8 +1,14 @@
 from factory.django import DjangoModelFactory
 from django.contrib.auth import get_user_model
 import factory.random
-from job.models import Job, JobResponsibility, JobRequirement, JobBookmark
-from users.factories import UserFactory
+from job.models import (
+    Job,
+    JobResponsibility,
+    JobRequirement,
+    JobBookmark,
+    JobApplication,
+)
+from users.factories import UserFactory, ResumeFactory
 import factory
 from factory import fuzzy
 
@@ -34,12 +40,14 @@ class JobFactory(DjangoModelFactory):
     created_by = factory.SubFactory(UserFactory)
     company_office = factory.SubFactory("company.factories.CompanyOfficeFactory")
 
+
 class JobResponsibilityFactory(DjangoModelFactory):
     class Meta:
         model = JobResponsibility
 
     description = factory.Faker("text")
     job = factory.SubFactory(JobFactory)
+
 
 class JobRequirementFactory(DjangoModelFactory):
     class Meta:
@@ -48,3 +56,12 @@ class JobRequirementFactory(DjangoModelFactory):
     description = factory.Faker("text")
     job = factory.SubFactory(JobFactory)
 
+
+class JobApplicationFactory(DjangoModelFactory):
+    class Meta:
+        model = JobApplication
+
+    user = factory.SubFactory(UserFactory)
+    job = factory.SubFactory(JobFactory)
+    resume = factory.SubFactory(ResumeFactory, user=factory.SelfAttribute("..user"))
+    cover_letter = factory.Faker("text")

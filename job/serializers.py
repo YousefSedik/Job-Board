@@ -127,3 +127,9 @@ class JobApplicationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobApplication
         fields = ["job", "resume", "cover_letter", "created_at", "updated_at", "status"]
+
+
+class JobApplicationUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobApplication
+        fields = ["status"]
