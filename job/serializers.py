@@ -41,7 +41,6 @@ class BookmarkDestroySerializers(serializers.ModelSerializer):
 
 
 class JobSerializer(serializers.ModelSerializer):
-    company_office = CompanyOfficeSerializer(read_only=True)
     company = CompanySerializer(read_only=True)
     job_type = serializers.CharField(source="get_job_type_display", read_only=True)
     work_place = serializers.CharField(source="get_work_place_display", read_only=True)
@@ -117,7 +116,7 @@ class JobApplicationSerializer(serializers.ModelSerializer):
 
 class JobApplicationListSerializer(serializers.ModelSerializer):
     job = serializers.HyperlinkedRelatedField(
-        view_name="job-detail", lookup_field="id", read_only=True
+        view_name="job-detail", read_only=True
     )
     resume = serializers.HyperlinkedRelatedField(
         view_name="users:retrieve-destroy-resume", read_only=True

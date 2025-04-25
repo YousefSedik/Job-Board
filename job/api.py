@@ -33,8 +33,6 @@ class BookmarkDestroyAPIView(DestroyAPIView):
     serializer_class = BookmarkDestroySerializers
     permission_classes = [permissions.IsAuthenticated, IsObjectOwner]
     queryset = JobBookmark.objects.all()
-    lookup_field = "id"
-    lookup_url_kwarg = "id"
 
 
 class BookmarkListAPIView(ListAPIView):
@@ -42,14 +40,12 @@ class BookmarkListAPIView(ListAPIView):
     queryset = JobBookmark.objects.all()
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
+        return JobBookmark.objects.filter(user=self.request.user)
 
 
 class JobDetailAPIView(RetrieveAPIView):
     serializer_class = JobSerializer
     queryset = Job.objects.all()
-    lookup_field = "id"
-    lookup_url_kwarg = "id"
 
 
 class JobCreateAPIView(CreateAPIView):
@@ -78,11 +74,11 @@ class JobApplicationUpdateAPIView(generics.UpdateAPIView):
     serializer_class = JobApplicationUpdateSerializer
     queryset = JobApplication.objects.all()
     permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
+
     def update(self, request, *args, **kwargs):
         try:
             return super().update(request, *args, **kwargs)
         except DjangoValidationError as e:
-            # Format the validation error properly
             if hasattr(e, "message_dict"):
                 error_detail = e.message_dict
             else:
@@ -103,4 +99,11 @@ class JobApplicationListAPIView(ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
+        return JobApplication.objects.filter(user=self.request.user)
+
+class JobUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = JobCreateSerializer
+    queryset = Job.objects.all()
+    permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
+
+job_update_api_view = JobUpdateAPIView.as_view()
