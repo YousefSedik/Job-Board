@@ -61,13 +61,16 @@ class Job(models.Model):
         User, on_delete=models.CASCADE, related_name="created_jobs"
     )
 
-    def save(self, *args, **kwargs):
+    def clean(self):
         if self.salary_start_from > self.salary_end:
             raise ValidationError("Salary start from must be less than salary end.")
         if self.salary_start_from < 0 or self.salary_end < 0:
             raise ValidationError("Salary must be positive.")
         if self.salary_start_from == self.salary_end:
             raise ValidationError("Salary start from must be less than salary end.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
         self.company = self.company_office.company
         return super().save(*args, **kwargs)
 
