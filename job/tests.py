@@ -177,7 +177,14 @@ class JobCreationTests(APITestCase):
             data.get("detail", ""), "Only managers of this company can create jobs."
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
+    def test_creating_job_with_invalid_salary(self):
+        data = self.default_data.copy()
+        data["salary_start_from"] = 20000
+        data["salary_end"] = 10000
+        response = self.client.post(self.create_job_url, data)
+        data = response.json()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(data["salary_end"][0], "Salary end must be greater than salary start from.")
     def test_unauthorized_user_create_a_job(self):
         data = self.default_data.copy()
         self.client.force_authenticate(user=None)
