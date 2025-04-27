@@ -16,6 +16,7 @@ from .serializers import (
     JobApplicationSerializer,
     JobApplicationListSerializer,
     JobApplicationUpdateSerializer,
+    JobUpdateSerializer,
 )
 from rest_framework import permissions, response, status
 from .models import JobBookmark, Job, JobApplication
@@ -43,9 +44,20 @@ class BookmarkListAPIView(ListAPIView):
         return JobBookmark.objects.filter(user=self.request.user)
 
 
-class JobDetailAPIView(RetrieveAPIView):
-    serializer_class = JobSerializer
+class JobDetailUpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = Job.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in ["PUT", "PATCH"]:
+            return JobUpdateSerializer
+        elif self.request.method == "GET":
+            return JobSerializer
+        return super().get_serializer_class()
+
+    def get_permissions(self):
+        if self.request.method in ["PUT", "PATCH"]:
+            self.permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
+        return super().get_permissions()
 
 
 class JobCreateAPIView(CreateAPIView):
@@ -117,12 +129,3 @@ class JobApplicationListAPIView(ListAPIView):
 
     def get_queryset(self):
         return JobApplication.objects.filter(user=self.request.user)
-
-
-class JobUpdateAPIView(generics.UpdateAPIView):
-    serializer_class = JobCreateSerializer
-    queryset = Job.objects.all()
-    permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
-
-
-job_update_api_view = JobUpdateAPIView.as_view()

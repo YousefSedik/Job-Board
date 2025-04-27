@@ -11,9 +11,14 @@ class CompanyOffice(models.Model):
     city = models.ForeignKey(
         "cities_light.City", on_delete=models.SET_NULL, null=True, blank=True
     )
-    company = models.ForeignKey("Company", on_delete=models.CASCADE, related_name="offices")
+    company = models.ForeignKey(
+        "Company", on_delete=models.CASCADE, related_name="offices"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def get_company(self):
+        return self.company
 
     def __str__(self):
         return self.company.name + " - " + self.city.name + ", " + self.country.name
@@ -42,14 +47,22 @@ class Company(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_company(self):
+        return self
+
     def __str__(self):
         return self.name
 
 
 class CompanyManager(models.Model):
     manager = models.ForeignKey(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="managers")
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="managers"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_company(self):
+        return self.company
 
     def __str__(self):
         return self.company.name + " - " + self.manager.email

@@ -62,17 +62,17 @@ class Job(models.Model):
     )
 
     def clean(self):
+        super().clean()
         if self.salary_start_from > self.salary_end:
-            raise ValidationError("Salary start from must be less than salary end.")
-        if self.salary_start_from < 0 or self.salary_end < 0:
-            raise ValidationError("Salary must be positive.")
-        if self.salary_start_from == self.salary_end:
             raise ValidationError("Salary start from must be less than salary end.")
 
     def save(self, *args, **kwargs):
-        self.full_clean()
         self.company = self.company_office.company
+        self.full_clean()
         return super().save(*args, **kwargs)
+
+    def get_company(self):
+        return self.company
 
     def __str__(self):
         return f"{self.title} - {self.company}"
@@ -104,6 +104,9 @@ class JobApplication(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.job.title} - {self.status}"
+
+    def get_company(self):
+        return self.job.company
 
     def clean(self):
         if self.pk:

@@ -31,7 +31,7 @@ class JobBookmarkTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertTrue(
-            response.data[0]["job"].endswith(reverse("job-detail", args=[job.id]))
+            response.data[0]["job"].endswith(reverse("job-detail-update", args=[job.id]))
         )
 
     def test_delete_owned_job_bookmark(self):
@@ -177,6 +177,7 @@ class JobCreationTests(APITestCase):
             data.get("detail", ""), "Only managers of this company can create jobs."
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_creating_job_with_invalid_salary(self):
         data = self.default_data.copy()
         data["salary_start_from"] = 20000
@@ -184,7 +185,10 @@ class JobCreationTests(APITestCase):
         response = self.client.post(self.create_job_url, data)
         data = response.json()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(data["salary_end"][0], "Salary end must be greater than salary start from.")
+        self.assertIn(
+            "Salary start from must be less than salary end.", data.get("__all__", [])
+        )
+
     def test_unauthorized_user_create_a_job(self):
         data = self.default_data.copy()
         self.client.force_authenticate(user=None)
@@ -290,3 +294,78 @@ class UpdateJobApplicationStatusTests(APITestCase):
             data = {"status": status["status"]}
             response = self.client.patch(self.update_url, data=data, format="json")
             self.assertEqual(response.status_code, status["status_code"])
+
+
+class JobUpdateTests(APITestCase):
+    def setUp(self):
+        self.faker = Faker()
+        self.user = UserFactory()
+        self.other_user = UserFactory()
+        self.company = CompanyFactory()
+        self.company_office = CompanyOfficeFactory(company=self.company)
+        self.company_manger = CompanyManagerFactory(
+            company=self.company, manager=self.user
+        )
+        self.job = JobFactory(
+            company=self.company,
+            company_office=self.company_office,
+            created_by=self.user,
+        )
+        self.update_url = reverse("job-detail-update", args=[self.job.id])
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+        self.default_data = {
+            "title": self.faker.word(),
+            "overview": self.faker.paragraph(),
+            "salary_start_from": 10000,
+            "salary_end": 15000,
+            "job_type": Job.JobType.FULL_TIME,
+            "work_place": Job.WorkPlace.HYBRID,
+            "company_office": self.company_office.id,
+        }
+
+        return super().setUp()
+
+    def test_authorized_manager_update_job_valid(self):
+        data = self.default_data.copy()
+        data["title"] = "Updated Title"
+        data["overview"] = "Updated overview"
+        data["salary_start_from"] = 12000
+        data["salary_end"] = 16000
+        response = self.client.patch(self.update_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.title, data["title"])
+        self.assertEqual(self.job.overview, data["overview"])
+        self.assertEqual(self.job.salary_start_from, data["salary_start_from"])
+        self.assertEqual(self.job.salary_end, data["salary_end"])
+        self.assertEqual(self.job.job_type, data["job_type"])
+        self.assertEqual(self.job.work_place, data["work_place"])
+
+    def test_unauthorized_manager_update_job(self):
+        data = self.default_data.copy()
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.patch(self.update_url, data, format="json")
+        data = response.json()
+        self.assertEqual(
+            data.get("detail", ""), "Only managers of this company can update jobs."
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_unauthorized_user_update_job(self):
+        data = self.default_data.copy()
+        self.client.force_authenticate(user=None)
+        response = self.client.patch(self.update_url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    
+    def test_update_job_with_invalid_salary(self):
+        data = self.default_data.copy()
+        data["salary_start_from"] = 20000
+        data["salary_end"] = 10000
+        response = self.client.patch(self.update_url, data, format="json")
+        data = response.json()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn(
+            "Salary start from must be less than salary end.", data.get("__all__", [])
+        )
