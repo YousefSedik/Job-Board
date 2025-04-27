@@ -1,10 +1,8 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
     ListAPIView,
-    RetrieveAPIView,
 )
 from rest_framework import generics
 from .serializers import (
@@ -59,6 +57,23 @@ class JobDetailUpdateAPIView(generics.RetrieveUpdateAPIView):
             self.permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
         return super().get_permissions()
 
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except DjangoValidationError as e:
+            if hasattr(e, "message_dict"):
+                error_detail = e.message_dict
+            else:
+                error_detail = {
+                    "error": (
+                        [str(m) for m in e.messages]
+                        if hasattr(e, "messages")
+                        else [str(e)]
+                    )
+                }
+
+            return response.Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
+
 
 class JobCreateAPIView(CreateAPIView):
     serializer_class = JobCreateSerializer
@@ -89,7 +104,9 @@ class JobCreateAPIView(CreateAPIView):
             company=company_office.company.id, manager=self.request.user
         ).exists()
         if not is_manager:
-            raise PermissionDenied("Only managers of this company can create jobs.")
+            raise PermissionDenied(
+                "Only managers of this company can create or update jobs."
+            )
 
         serializer.save(created_by=self.request.user)
 

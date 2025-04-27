@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from users.models import Resume
 from .models import JobBookmark, Job, JobRequirement, JobResponsibility, JobApplication
-from company.serializers import CompanySerializer, CompanyOfficeSerializer
+from company.serializers import CompanySerializer
 from .validators import job_user_unique
 
 
 class BookmarkSerializersList(serializers.ModelSerializer):
     job = serializers.HyperlinkedRelatedField(
-        view_name="job-detail-update",  read_only=True
+        view_name="job-detail-update", read_only=True
     )
 
     class Meta:
@@ -103,7 +103,9 @@ class JobApplicationSerializer(serializers.ModelSerializer):
 
 
 class JobApplicationListSerializer(serializers.ModelSerializer):
-    job = serializers.HyperlinkedRelatedField(view_name="job-detail-update", read_only=True)
+    job = serializers.HyperlinkedRelatedField(
+        view_name="job-detail-update", read_only=True
+    )
     resume = serializers.HyperlinkedRelatedField(
         view_name="users:retrieve-destroy-resume", read_only=True
     )
@@ -132,4 +134,3 @@ class JobUpdateSerializer(serializers.ModelSerializer):
             "work_place",
             "company_office",
         ]
-

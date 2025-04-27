@@ -79,7 +79,6 @@ class Job(models.Model):
 
 
 class JobApplication(models.Model):
-
     class JobApplicationStatus(models.TextChoices):
         APPLIED = "A", "Applied"
         REJECTED = "R", "Rejected"

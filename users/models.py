@@ -80,5 +80,5 @@ def fire_resume_analyzer(sender, instance, created, **kwargs):
         # call CV analysis service
         try:
             analyze_resume_task.delay(instance.id)
-        except:
+        except Exception:
             pass

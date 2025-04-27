@@ -1,10 +1,9 @@
 from .factories import JobBookmarkFactory, JobFactory, JobApplicationFactory
 from users.factories import ResumeFactory, UserFactory
 from rest_framework.test import APITestCase, APIClient
-from users.factories import UserFactory
 from rest_framework import status
 from django.urls import reverse
-from .models import JobBookmark, Job, JobRequirement, JobResponsibility, JobApplication
+from .models import Job, JobApplication
 from faker import Faker
 from company.factories import (
     CompanyFactory,
@@ -14,7 +13,6 @@ from company.factories import (
 
 
 class JobBookmarkTests(APITestCase):
-
     def test_create_job_bookmark(self):
         user = UserFactory()
         job = JobFactory()
@@ -31,7 +29,9 @@ class JobBookmarkTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertTrue(
-            response.data[0]["job"].endswith(reverse("job-detail-update", args=[job.id]))
+            response.data[0]["job"].endswith(
+                reverse("job-detail-update", args=[job.id])
+            )
         )
 
     def test_delete_owned_job_bookmark(self):
@@ -76,7 +76,6 @@ class JobApplicationTests(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_apply_with_valid_data(self):
-
         data = {
             "job": self.job.id,
             "resume": self.resume.id,
@@ -100,7 +99,6 @@ class JobApplicationTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_apply_with_unowned_resume(self):
-
         data = {
             "job": self.job.id,
             "resume": self.resume2.id,
@@ -174,7 +172,8 @@ class JobCreationTests(APITestCase):
         response = self.client.post(self.create_job_url, data)
         data = response.json()
         self.assertEqual(
-            data.get("detail", ""), "Only managers of this company can create jobs."
+            data.get("detail", ""),
+            "Only managers of this company can create or update jobs.",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -264,15 +263,15 @@ class UpdateJobApplicationStatusTests(APITestCase):
                 self.update_url = reverse(
                     "job-application-update", args=[self.job_application.id]
                 )
-                for status in combo:
-                    data = {"status": status["status"]}
+                for st in combo:
+                    data = {"status": st["status"]}
                     response = self.client.patch(
                         self.update_url, data=data, format="json"
                     )
-                    self.assertEqual(response.status_code, status["status_code"])
-                    if status["status_code"] == 200:
+                    self.assertEqual(response.status_code, st["status_code"])
+                    if st["status_code"] == 200:
                         self.job_application.refresh_from_db()
-                        self.assertEqual(self.job_application.status, status["status"])
+                        self.assertEqual(self.job_application.status, st["status"])
 
     def test_not_manager_updating_job_application_status(self):
         self.client.force_authenticate(user=self.other_user)
@@ -290,10 +289,10 @@ class UpdateJobApplicationStatusTests(APITestCase):
         self.update_url = reverse(
             "job-application-update", args=[self.job_application.id]
         )
-        for status in combinations:
-            data = {"status": status["status"]}
+        for st in combinations:
+            data = {"status": st["status"]}
             response = self.client.patch(self.update_url, data=data, format="json")
-            self.assertEqual(response.status_code, status["status_code"])
+            self.assertEqual(response.status_code, st["status_code"])
 
 
 class JobUpdateTests(APITestCase):
@@ -349,16 +348,17 @@ class JobUpdateTests(APITestCase):
         response = self.client.patch(self.update_url, data, format="json")
         data = response.json()
         self.assertEqual(
-            data.get("detail", ""), "Only managers of this company can update jobs."
+            data.get("detail", ""),
+            "Only managers of this company can create or update jobs.",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    
+
     def test_unauthorized_user_update_job(self):
         data = self.default_data.copy()
         self.client.force_authenticate(user=None)
         response = self.client.patch(self.update_url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    
+
     def test_update_job_with_invalid_salary(self):
         data = self.default_data.copy()
         data["salary_start_from"] = 20000

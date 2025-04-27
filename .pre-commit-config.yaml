@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: docker-run-tests
+        name: Run Django tests inside Docker
+        entry: docker exec jobboard-django-1 python3 manage.py test
+        language: system
+        pass_filenames: false

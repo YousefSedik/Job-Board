@@ -1,4 +1,10 @@
-from .factories import JobBookmarkFactory, JobFactory, JobApplicationFactory, JobRequirementFactory, JobResponsibilityFactory
+from .factories import (
+    JobBookmarkFactory,
+    JobFactory,
+    JobApplicationFactory,
+    JobRequirementFactory,
+    JobResponsibilityFactory,
+)
 
 __all__ = [
     "JobBookmarkFactory",

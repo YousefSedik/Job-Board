@@ -7,4 +7,3 @@ job_user_unique = serializers.UniqueTogetherValidator(
     fields=["user", "job"],
     message="You've already applied to this job.",
 )
-

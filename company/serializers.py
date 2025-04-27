@@ -18,6 +18,7 @@ class CountrySerializer(serializers.ModelSerializer):
 class CompanyOfficeSerializer(serializers.ModelSerializer):
     city_name = serializers.CharField(source="city.name", read_only=True)
     country_name = serializers.CharField(source="country.name", read_only=True)
+
     class Meta:
         model = CompanyOffice
         fields = [

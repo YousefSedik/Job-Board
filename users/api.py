@@ -6,7 +6,6 @@ from rest_framework.generics import (
 )
 from django.contrib.auth import get_user_model
 from .serializers import RegisterSerializer, UserSerializer, ResumeSerializer
-from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Resume
@@ -16,7 +15,6 @@ User = get_user_model()
 
 
 class CreateUserView(CreateAPIView):
-
     model = get_user_model()
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer

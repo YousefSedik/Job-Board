@@ -2,12 +2,8 @@ from rest_framework import permissions
 from company.models import CompanyManager
 
 
-from rest_framework import permissions, viewsets
-from rest_framework.exceptions import PermissionDenied
-
-
 class IsCompanyManager(permissions.BasePermission):
-    message = "Only managers of this company can create jobs."
+    message = "Only managers of this company can create or update jobs."
 
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
