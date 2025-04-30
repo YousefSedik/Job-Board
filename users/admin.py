@@ -1,4 +1,23 @@
 from django.contrib import admin
-from .models import Resume
+from .models import Resume, CustomUser
+
+
+class ResumeInline(admin.TabularInline):
+    model = Resume
+    extra = 1
+    fields = ("resume", "created_at", "content")
+    readonly_fields = ("created_at",)
+    can_delete = False
+    show_change_link = True
+    max_num = 1
+
+
+class CustomUserAdmin(admin.ModelAdmin):
+    list_display = ("email", "is_staff", "is_active")
+    search_fields = ("email",)
+    ordering = ("email",)
+    inlines = [ResumeInline]
+
 
 admin.site.register(Resume)
+admin.site.register(CustomUser, CustomUserAdmin)
