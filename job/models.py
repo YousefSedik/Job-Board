@@ -112,10 +112,10 @@ class JobApplication(models.Model):
             try:
                 old = self.__class__.objects.get(pk=self.pk)
                 options = {
-                    "Applied": ["Rejected", "Invited", "Hired"],
-                    "Invited": ["Rejected", "Hired"],
-                    "Rejected": [],
-                    "Hired": [],
+                    "Applied": ["Applied", "Rejected", "Invited", "Hired"],
+                    "Invited": ["Invited", "Rejected", "Hired"],
+                    "Rejected": ["Rejected"],
+                    "Hired": ["Hired"],
                 }
                 if self.get_status_display() not in options[old.get_status_display()]:
                     raise ValidationError(

@@ -19,5 +19,12 @@ class CustomUserAdmin(admin.ModelAdmin):
     inlines = [ResumeInline]
 
 
-admin.site.register(Resume)
+class ResumeModelAdmin(admin.ModelAdmin):
+    list_display = ("user", "resume", "created_at", "content")
+    search_fields = ("user__email",)
+    ordering = ("-created_at",)
+    list_filter = ("created_at",)
+
+
+admin.site.register(Resume, ResumeModelAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)

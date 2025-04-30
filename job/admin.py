@@ -20,6 +20,7 @@ class JobModelAdmin(admin.ModelAdmin):
 
 
 class JobApplicationModelAdmin(admin.ModelAdmin):
+    list_per_page = 10
     list_display = (
         "user",
         "job",
@@ -39,8 +40,14 @@ class JobApplicationModelAdmin(admin.ModelAdmin):
         "user",
     )
     list_filter = ("job", "created_at", "updated_at", "is_cover_letter_ai_generated")
-    search_fields = ("user__email", "job__title", "job__company__name")
+    search_fields = ("user__email", "job__title", "job__company__name", "resume__user")
     ordering = ("-created_at",)
+    autocomplete_fields = ("job", "user", "resume")
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            self.readonly_fields = ()
+        return super().get_readonly_fields(request, obj)
 
 
 admin.site.register(JobApplication, JobApplicationModelAdmin)
