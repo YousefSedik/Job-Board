@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('job', '0003_job_created_by_alter_job_company_office'),
+        ("job", "0003_job_created_by_alter_job_company_office"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='jobapplication',
-            name='is_cover_letter_ai_generated',
+            model_name="jobapplication",
+            name="is_cover_letter_ai_generated",
             field=models.FloatField(blank=True, default=None, null=True),
         ),
     ]

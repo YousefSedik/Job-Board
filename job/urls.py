@@ -3,7 +3,7 @@ from .api import (
     BookmarkCreateAPIView,
     BookmarkDestroyAPIView,
     BookmarkListAPIView,
-    JobDetailAPIView,
+    JobDetailUpdateAPIView,
     JobCreateAPIView,
     JobApplicationAPIView,
     JobApplicationListAPIView,
@@ -12,9 +12,9 @@ from .api import (
 
 urlpatterns = [
     path("bookmarks", BookmarkListAPIView.as_view(), name="list-bookmarks"),
-    path("bookmark/<int:id>", BookmarkDestroyAPIView.as_view(), name="delete-bookmark"),
+    path("bookmark/<int:pk>", BookmarkDestroyAPIView.as_view(), name="delete-bookmark"),
     path("bookmark", BookmarkCreateAPIView.as_view(), name="create-bookmark"),
-    path("job/<int:id>", JobDetailAPIView.as_view(), name="job-detail"),
+    path("job/<int:pk>", JobDetailUpdateAPIView.as_view(), name="job-detail-update"),
     path("job", JobCreateAPIView.as_view(), name="job-create"),
     path("job/apply", JobApplicationAPIView.as_view(), name="apply-job"),
     path(

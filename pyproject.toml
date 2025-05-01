@@ -1,0 +1,5 @@
+[tool.ruff]
+lint.ignore = ["F403", "F405","E402"]
+[tool.ruff.lint.per-file-ignores]
+"job_board/settings/development.py" = ["E501", "F405"]
+"job_board/settings/production.py" = ["F403", "F405"]

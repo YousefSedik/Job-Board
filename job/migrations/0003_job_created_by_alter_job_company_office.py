@@ -6,23 +6,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('company', '0004_alter_companymanager_company'),
-        ('job', '0002_rename_application_jobapplication'),
+        ("company", "0004_alter_companymanager_company"),
+        ("job", "0002_rename_application_jobapplication"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='job',
-            name='created_by',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='created_jobs', to=settings.AUTH_USER_MODEL),
+            model_name="job",
+            name="created_by",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="created_jobs",
+                to=settings.AUTH_USER_MODEL,
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='job',
-            name='company_office',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='company.companyoffice'),
+            model_name="job",
+            name="company_office",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="company.companyoffice",
+            ),
         ),
     ]

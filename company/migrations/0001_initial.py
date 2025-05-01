@@ -6,46 +6,123 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('cities_light', '0011_alter_city_country_alter_city_region_and_more'),
+        ("cities_light", "0011_alter_city_country_alter_city_region_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Company',
+            name="Company",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
-                ('about', models.TextField()),
-                ('profile_image', models.ImageField(blank=True, null=True, upload_to='company/profile_image/')),
-                ('number_of_employees', models.PositiveBigIntegerField(choices=[(1, '1-10'), (2, '11-50'), (3, '51-200'), (4, '201-500'), (5, '501-1000'), (6, '1001-5000'), (7, '5001-10000'), (8, '10001+')], default=1)),
-                ('website', models.URLField()),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("about", models.TextField()),
+                (
+                    "profile_image",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="company/profile_image/"
+                    ),
+                ),
+                (
+                    "number_of_employees",
+                    models.PositiveBigIntegerField(
+                        choices=[
+                            (1, "1-10"),
+                            (2, "11-50"),
+                            (3, "51-200"),
+                            (4, "201-500"),
+                            (5, "501-1000"),
+                            (6, "1001-5000"),
+                            (7, "5001-10000"),
+                            (8, "10001+"),
+                        ],
+                        default=1,
+                    ),
+                ),
+                ("website", models.URLField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
         ),
         migrations.CreateModel(
-            name='CompanyManager',
+            name="CompanyManager",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='company.company')),
-                ('manager', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="company.company",
+                    ),
+                ),
+                (
+                    "manager",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CompanyOffice',
+            name="CompanyOffice",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('city', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='cities_light.city')),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='company.company')),
-                ('country', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='cities_light.country')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "city",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="cities_light.city",
+                    ),
+                ),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="company.company",
+                    ),
+                ),
+                (
+                    "country",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="cities_light.country",
+                    ),
+                ),
             ],
         ),
     ]

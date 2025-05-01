@@ -67,6 +67,7 @@ class GoogleSocialAuthSerializer(serializers.Serializer):
 
 class ResumeSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Resume
         fields = ["user", "resume", "timesince"]

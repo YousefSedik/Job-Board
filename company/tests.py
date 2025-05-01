@@ -11,6 +11,7 @@ from .factories import (
     CityFactory,
 )
 
+
 class CompanyAPITests(APITestCase):
     def setUp(self):
         self.user = UserFactory()
@@ -123,7 +124,7 @@ class CompanyOfficeAPITests(APITestCase):
         other_country = CountryFactory()
         other_city = CityFactory(country=other_country)
         # Make sure to pass all required fields explicitly
-        other_office = CompanyOfficeFactory(
+        CompanyOfficeFactory(
             company=other_company, country=other_country, city=other_city
         )
 
@@ -185,7 +186,7 @@ class CompanyManagerAPITests(APITestCase):
         """Test filtering managers by company"""
         # Create another company and manager
         other_company = CompanyFactory()
-        other_manager = CompanyManagerFactory(company=other_company)
+        CompanyManagerFactory(company=other_company)
 
         url = f"{reverse('companymanager-list')}?company_id={self.company.id}"
         response = self.client.get(url)

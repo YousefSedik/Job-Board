@@ -61,16 +61,24 @@ class Job(models.Model):
         User, on_delete=models.CASCADE, related_name="created_jobs"
     )
 
+    def clean(self):
+        super().clean()
+        if self.salary_start_from > self.salary_end:
+            raise ValidationError("Salary start from must be less than salary end.")
+
     def save(self, *args, **kwargs):
         self.company = self.company_office.company
+        self.full_clean()
         return super().save(*args, **kwargs)
+
+    def get_company(self):
+        return self.company
 
     def __str__(self):
         return f"{self.title} - {self.company}"
 
 
 class JobApplication(models.Model):
-
     class JobApplicationStatus(models.TextChoices):
         APPLIED = "A", "Applied"
         REJECTED = "R", "Rejected"
@@ -96,15 +104,18 @@ class JobApplication(models.Model):
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.job.title} - {self.status}"
 
+    def get_company(self):
+        return self.job.company
+
     def clean(self):
         if self.pk:
             try:
                 old = self.__class__.objects.get(pk=self.pk)
                 options = {
-                    "Applied": ["Rejected", "Invited", "Hired"],
-                    "Invited": ["Rejected", "Hired"],
-                    "Rejected": [],
-                    "Hired": [],
+                    "Applied": ["Applied", "Rejected", "Invited", "Hired"],
+                    "Invited": ["Invited", "Rejected", "Hired"],
+                    "Rejected": ["Rejected"],
+                    "Hired": ["Hired"],
                 }
                 if self.get_status_display() not in options[old.get_status_display()]:
                     raise ValidationError(

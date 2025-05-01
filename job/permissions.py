@@ -2,12 +2,9 @@ from rest_framework import permissions
 from company.models import CompanyManager
 
 
-from rest_framework import permissions, viewsets
-from rest_framework.exceptions import PermissionDenied
-
-
 class IsCompanyManager(permissions.BasePermission):
-    company_object = 'job.company'
+    message = "Only managers of this company can create or update jobs."
+
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -17,8 +14,16 @@ class IsCompanyManager(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
+
+        company = None
+        if hasattr(obj, "get_company") and callable(getattr(obj, "get_company")):
+            company = obj.get_company()
+
+        if not company:
+            return False
+
         return CompanyManager.objects.filter(
-            manager=request.user, company=obj.job.company
+            manager=request.user, company=company
         ).exists()
 
 

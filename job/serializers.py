@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from users.models import Resume
 from .models import JobBookmark, Job, JobRequirement, JobResponsibility, JobApplication
-from company.serializers import CompanySerializer, CompanyOfficeSerializer
+from company.serializers import CompanySerializer
 from .validators import job_user_unique
 
 
 class BookmarkSerializersList(serializers.ModelSerializer):
     job = serializers.HyperlinkedRelatedField(
-        view_name="job-detail", lookup_field="id", read_only=True
+        view_name="job-detail-update", read_only=True
     )
 
     class Meta:
@@ -41,7 +41,6 @@ class BookmarkDestroySerializers(serializers.ModelSerializer):
 
 
 class JobSerializer(serializers.ModelSerializer):
-    company_office = CompanyOfficeSerializer(read_only=True)
     company = CompanySerializer(read_only=True)
     job_type = serializers.CharField(source="get_job_type_display", read_only=True)
     work_place = serializers.CharField(source="get_work_place_display", read_only=True)
@@ -63,18 +62,6 @@ class JobCreateSerializer(serializers.ModelSerializer):
             "work_place",
             "company_office",
         ]
-
-    def validate(self, attrs):
-
-        if attrs["salary_start_from"] > attrs["salary_end"]:
-            raise serializers.ValidationError(
-                {
-                    "salary_start_from": [
-                        "Salary end should be smaller than salary start from."
-                    ]
-                }
-            )
-        return attrs
 
 
 class JobRequirementSerializer(serializers.ModelSerializer):
@@ -117,7 +104,7 @@ class JobApplicationSerializer(serializers.ModelSerializer):
 
 class JobApplicationListSerializer(serializers.ModelSerializer):
     job = serializers.HyperlinkedRelatedField(
-        view_name="job-detail", lookup_field="id", read_only=True
+        view_name="job-detail-update", read_only=True
     )
     resume = serializers.HyperlinkedRelatedField(
         view_name="users:retrieve-destroy-resume", read_only=True
@@ -133,3 +120,17 @@ class JobApplicationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobApplication
         fields = ["status"]
+
+
+class JobUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = [
+            "title",
+            "overview",
+            "salary_start_from",
+            "salary_end",
+            "job_type",
+            "work_place",
+            "company_office",
+        ]

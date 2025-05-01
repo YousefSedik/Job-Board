@@ -21,4 +21,3 @@ def analyze_resume_task(resume_id):
 
     except Resume.DoesNotExist:
         print(f"Resume with id {resume_id} does not exist.")
-

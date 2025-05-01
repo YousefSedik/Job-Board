@@ -10,7 +10,6 @@ User = get_user_model()
 
 
 class UsersManagersTests(APITestCase):
-
     def test_create_user(self):
         User = get_user_model()
         user = User.objects.create_user(
@@ -61,7 +60,6 @@ class UsersTestCases(APITestCase):
 
 class ResumeAPITest(APITestCase):
     def setUp(self):
-
         # Create users
         self.user1 = UserFactory()
         self.user2 = UserFactory()
