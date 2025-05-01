@@ -1,20 +1,24 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from .api import (
-    CompanyViewSet,
-    CompanyOfficeViewSet,
-    CompanyManagerViewSet,
-    CityViewSet,
-    CountryViewSet,
+    CompanyRetrieveUpdateAPIView,
+    CompanyManagerListCreateAPIView,
+    CompanyManagerDestroyAPIView,
 )
 
-router = DefaultRouter()
-router.register(r"companies", CompanyViewSet)
-router.register(r"offices", CompanyOfficeViewSet)
-router.register(r"managers", CompanyManagerViewSet)
-router.register(r"cities", CityViewSet)
-router.register(r"countries", CountryViewSet)
-
 urlpatterns = [
-    path("", include(router.urls)),
+    path(
+        "api/company/<int:pk>",
+        CompanyRetrieveUpdateAPIView.as_view(),
+        name="company-retrieve-update",
+    ),
+    path(
+        "api/company/<int:company_id>/managers",
+        CompanyManagerListCreateAPIView.as_view(),
+        name="company-managers-list-create",
+    ),
+    path(
+        "api/company/managers/<int:pk>",
+        CompanyManagerDestroyAPIView.as_view(),
+        name="company-manager-destroy",
+    ),
 ]
