@@ -369,3 +369,54 @@ class JobUpdateTests(APITestCase):
         self.assertIn(
             "Salary start from must be less than salary end.", data.get("__all__", [])
         )
+
+
+class ListJobApplicationsForSpecificJobTests(APITestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.other_user = UserFactory()
+        self.manager = UserFactory()
+        self.company = CompanyFactory()
+        self.company_office = CompanyOfficeFactory(company=self.company)
+        self.company_manger = CompanyManagerFactory(
+            company=self.company, manager=self.manager
+        )
+        self.job = JobFactory(
+            company=self.company,
+            company_office=self.company_office,
+            created_by=self.manager,
+        )
+        self.resume_user_1 = ResumeFactory(user=self.user)
+        self.resume_user_2 = ResumeFactory(user=self.other_user)
+
+        self.job_application_1 = JobApplicationFactory(
+            resume=self.resume_user_1,
+            job=self.job,
+        )
+        self.job_application_2 = JobApplicationFactory(
+            resume=self.resume_user_2,
+            job=self.job,
+        )
+
+        self.list_url = reverse("list-job-applications", args=[self.job.id])
+        self.client.force_authenticate(user=self.manager)
+
+    def test_getting_applications_with_manager_user(self):
+        """test a company manager getting job applications"""
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 2)
+
+    def test_getting_applications_with_an_un_manager_user(self):
+        """test a non-company manager getting job applications"""
+        new_user = UserFactory()
+        self.client.force_authenticate(user=new_user)
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_getting_applications_with_an_unauthenticated_user(self):
+        """test a non-company manager getting job applications"""
+        self.client.force_authenticate(user=None)
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, 401)

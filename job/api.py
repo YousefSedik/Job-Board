@@ -4,7 +4,6 @@ from rest_framework.generics import (
     DestroyAPIView,
     ListAPIView,
 )
-from rest_framework import generics
 from .serializers import (
     BookmarkCreateSerializer,
     BookmarkSerializersList,
@@ -15,12 +14,15 @@ from .serializers import (
     JobApplicationListSerializer,
     JobApplicationUpdateSerializer,
     JobUpdateSerializer,
+    ListJobApplicationsSerializer,
 )
-from rest_framework import permissions, response, status
+from rest_framework import permissions, status, generics
+from rest_framework.response import Response
 from .models import JobBookmark, Job, JobApplication
-from .permissions import IsObjectOwner, IsCompanyManager
+from .permissions import IsObjectOwner, IsCompanyManager, IsCompanyManagerStrict
 from rest_framework.exceptions import PermissionDenied
 from company.models import CompanyManager, CompanyOffice
+from django.shortcuts import get_object_or_404
 
 
 class BookmarkCreateAPIView(CreateAPIView):
@@ -55,6 +57,8 @@ class JobDetailUpdateAPIView(generics.RetrieveUpdateAPIView):
     def get_permissions(self):
         if self.request.method in ["PUT", "PATCH"]:
             self.permission_classes = [permissions.IsAuthenticated, IsCompanyManager]
+        elif self.request.method == "GET":
+            self.permission_classes = [permissions.AllowAny]
         return super().get_permissions()
 
     def update(self, request, *args, **kwargs):
@@ -72,7 +76,7 @@ class JobDetailUpdateAPIView(generics.RetrieveUpdateAPIView):
                     )
                 }
 
-            return response.Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
+            return Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
 
 
 class JobCreateAPIView(CreateAPIView):
@@ -95,7 +99,7 @@ class JobCreateAPIView(CreateAPIView):
                     )
                 }
 
-            return response.Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
+            return Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
         company_office = self.request.data.get("company_office")
@@ -136,7 +140,7 @@ class JobApplicationUpdateAPIView(generics.UpdateAPIView):
                     )
                 }
 
-            return response.Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
+            return Response(error_detail, status=status.HTTP_400_BAD_REQUEST)
 
 
 class JobApplicationListAPIView(ListAPIView):
@@ -146,3 +150,15 @@ class JobApplicationListAPIView(ListAPIView):
 
     def get_queryset(self):
         return JobApplication.objects.filter(user=self.request.user)
+
+
+class ListJobApplicationsAPIView(ListAPIView):
+    serializer_class = ListJobApplicationsSerializer
+    permission_classes = [permissions.IsAuthenticated, IsCompanyManagerStrict]
+
+    def get_queryset(self):
+        job = get_object_or_404(Job, id=self.kwargs["pk"])
+        self.check_object_permissions(self.request, job)
+        return JobApplication.objects.filter(job=job).order_by(
+            "is_cover_letter_ai_generated"
+        )

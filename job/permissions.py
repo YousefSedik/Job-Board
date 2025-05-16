@@ -4,15 +4,16 @@ from company.models import CompanyManager
 
 class IsCompanyManager(permissions.BasePermission):
     message = "Only managers of this company can create or update jobs."
+    SAFE_METHODS = ("GET", "HEAD", "OPTIONS")
 
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in self.SAFE_METHODS:
             return True
 
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in self.SAFE_METHODS:
             return True
 
         company = None
@@ -21,7 +22,6 @@ class IsCompanyManager(permissions.BasePermission):
 
         if not company:
             return False
-
         return CompanyManager.objects.filter(
             manager=request.user, company=company
         ).exists()
@@ -32,3 +32,7 @@ class IsObjectOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return getattr(obj, self.owner_field) == request.user
+
+
+class IsCompanyManagerStrict(IsCompanyManager):
+    SAFE_METHODS = ()
