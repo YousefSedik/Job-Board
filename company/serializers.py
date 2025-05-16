@@ -35,7 +35,7 @@ class CompanyOfficeSerializer(serializers.ModelSerializer):
 
 class CompanySerializer(serializers.ModelSerializer):
     offices = CompanyOfficeSerializer(many=True, read_only=True)
-    number_of_employees_display = serializers.CharField(
+    number_of_employees = serializers.CharField(
         source="get_number_of_employees_display", read_only=True
     )
 
@@ -47,11 +47,22 @@ class CompanySerializer(serializers.ModelSerializer):
             "about",
             "profile_image",
             "number_of_employees",
-            "number_of_employees_display",
             "website",
             "offices",
             "created_at",
             "updated_at",
+        ]
+
+
+class CompanyUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = [
+            "name",
+            "about",
+            "profile_image",
+            "number_of_employees",
+            "website",
         ]
 
 
