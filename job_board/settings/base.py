@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django_rest_passwordreset",
     "corsheaders",
     "social_django",
+    "channels",
     "cities_light",
     # Local Apps
     "users",
@@ -163,7 +164,7 @@ CELERY_BEAT_SCHEDULE = {}
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://job_board_redis:6379",
+        "LOCATION": os.environ.get("REDIS_URL", "redis://job_board_redis:6379/0"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
@@ -213,3 +214,15 @@ SPECTACULAR_SETTINGS = {
 }
 
 TESTING = "test" in sys.argv
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
+
+ASGI_APPLICATION = "job_board.asgi.application"
